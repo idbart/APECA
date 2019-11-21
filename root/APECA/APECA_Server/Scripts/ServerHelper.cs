@@ -78,11 +78,12 @@ namespace APECA_Server.Scripts
                     if (SharedPacketTranslation.isConnectionRequest(buffer))
                     {
                         IPAddress clientIP = IPAddress.Parse(client.Client.RemoteEndPoint.ToString());
-                        string username = SharedEncoding.decodeString(SharedPacketManipulation.trimRequestCode(buffer));
+                        string username = SharedEncoding.decodeConnectionRequest(buffer).userName;
 
                         Client thisClient = (Client)from c in clients where c.userName == username && c.publicIP.ToString() == clientIP.ToString() select c;
                         if (thisClient != null)
                         {
+                            thisClient.tcpClient = client;
                             thisClient.isConnected = true;
                         }
                         else

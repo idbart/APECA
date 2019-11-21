@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using APECA_Client.Scripts;
+using APECA_Shared_Library;
 
 namespace APECA_Client
 {

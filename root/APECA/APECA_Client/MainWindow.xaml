@@ -8,11 +8,32 @@
         Title="APECA Client" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
-                
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="2">
+            <ListView x:Name="connectedClientsDisplay" MinWidth="150">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding isConnected}" IsEnabled="False"/>
+                            <TextBlock Text="{Binding userName}"/>
+                            <TextBlock Text="{Binding publicIP}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </ScrollViewer>
+        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right">
+            <Button x:Name="chatButton" Click="chatButton_Click" Content="Chat" Width="100" Height="30"/>
+            <Button x:Name="settingsButton" Click="settingsButton_Click" Content="Settings" Width="100" Height="30"/>
+        </StackPanel>
+        <Frame x:Name="largeFrame" NavigationUIVisibility="Hidden" Grid.Column="1" Grid.Row="1"/>
     </Grid>
 </Window>

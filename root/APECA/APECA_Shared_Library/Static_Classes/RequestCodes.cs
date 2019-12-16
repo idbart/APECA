@@ -6,8 +6,8 @@ namespace APECA_Shared_Library
 {
     public static class RequestCodes
     {
-        public static byte connect = 1;
-        public static byte disconnect = 2;
-        public static byte brodcastMessage = 3;
+        public static readonly byte connect = 1;
+        public static readonly byte disconnect = 2;
+        public static readonly byte brodcastMessage = 3;
     }
 }

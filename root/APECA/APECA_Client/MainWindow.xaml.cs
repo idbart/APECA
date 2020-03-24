@@ -19,23 +19,23 @@ using APECA_Client.Views;
 
 namespace APECA_Client
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        MainWindowModel model = new MainWindowModel();
-        Chat chatView = new Chat();
-        Settings settingsView = new Settings();
+        MainWindowModel model;
+        Chat chatView;
+        Settings settingsView;
 
         public MainWindow()
         {
             InitializeComponent();
 
+            model = new MainWindowModel();
+            chatView = new Chat();
+            settingsView = new Settings();
+
             setFrameToChat();
 
             connectedClientsDisplay.ItemsSource = model.clients;
-            chatView.model.messagesToDisplay = model.messages;
         }
 
         private void chatButton_Click(object sender, RoutedEventArgs e)
@@ -61,6 +61,11 @@ namespace APECA_Client
             chatButton.IsEnabled = true;
 
             largeFrame.Content = settingsView;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            model.dissconnectFromServer();
         }
     }
 }

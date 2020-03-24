@@ -89,7 +89,14 @@ namespace APECA_Shared_Library
             byte[] data = SharedPacketManipulation.trimRequestCode(buffer);
             string jsonString = decodeEncryptedString(data, key);
 
-            return JsonSerializer.Deserialize<BrodcastRequest>(jsonString);
+            try
+            {
+                return JsonSerializer.Deserialize<BrodcastRequest>(jsonString);
+            }
+            catch(Exception e)
+            {
+                return new BrodcastRequest() { userName = "WARNING:", message = jsonString };
+            }
         }
         public static byte[] encryptBrodcastRequest(BrodcastRequest request, byte[] key)
         {

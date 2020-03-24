@@ -19,7 +19,7 @@ namespace APECA_Client.Models
                 Settings.Default.Config = new SettingsConfig();
             }
 
-            if (Settings.Default.Config.setKey(enckey) == false)
+            if (Settings.Default.Config.setKeyWithString(enckey) == false)
             {
                 MessageBox.Show("Encryption key is invalid");
                 return;
@@ -29,6 +29,7 @@ namespace APECA_Client.Models
                 Settings.Default.Config.userName = username;
                 Settings.Default.Config.serverIP = serverip;
                 Settings.Default.Save();
+                ClientEvents.invokeSettingsChanged();
                 MessageBox.Show("Settings Saved");
             }
         }

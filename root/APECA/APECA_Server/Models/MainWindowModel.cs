@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -46,7 +47,7 @@ namespace APECA_Server.Models
                 return "None";
             }
         }
-        public List<Client> getClients()
+        public ObservableCollection<Client> getClients()
         {
             return serverObj.clients; 
         }

@@ -16,26 +16,33 @@ using APECA_Client.Models;
 
 namespace APECA_Client.Views
 {
-    /// <summary>
-    /// Interaction logic for Chat.xaml
-    /// </summary>
     public partial class Chat : Page
     {
-        public ChatModel model = new ChatModel();
+        public ChatModel model;
         public Chat()
         {
             InitializeComponent();
 
+            model = new ChatModel();
+
             sendMessageButton.IsDefault = true;
             messagesView.ItemsSource = model.messagesToDisplay;
+
+            model.messagesToDisplay.CollectionChanged += (e, args) => { updateMessageViewHolderScroll(); };
         }
 
         private void sendMessageButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(chatMessageInput.Text) != true)
+            if (!string.IsNullOrEmpty(chatMessageInput.Text))
             {
                 model.sendMessage(chatMessageInput.Text);
+
+                chatMessageInput.Text = default(string); 
             }
+        }
+        private void updateMessageViewHolderScroll()
+        {
+            this.Dispatcher.Invoke(() => { messageViewHolder.ScrollToBottom(); });
         }
     }
 }

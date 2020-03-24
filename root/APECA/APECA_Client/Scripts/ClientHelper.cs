@@ -13,61 +13,20 @@ using System.Text.Json;
 
 namespace APECA_Client.Scripts
 {
-    //Model for saving user confurations
-    public class SettingsConfig
-    {
-        public string userName { get; set; }
-        public string serverIP { get; set; }
-        public byte[] key { get; set; }
-
-        public string getKey()
-        {
-            return SharedEncoding.decodeString(key);
-        }
-        public bool setKey(string input)
-        {
-            byte[] bytes = SharedEncoding.encodeString(input);
-            if (bytes.Length == 16)
-            {
-                this.key = bytes;
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-    }
-
-    //Application wide static events
-    public delegate void MessageHandler(BrodcastRequest message);
-    public static class ClientEvents
-    {
-        public static event MessageHandler messageRecived;
-        public static void invokeMessageRecived(BrodcastRequest message)
-        {
-            messageRecived.Invoke(message);
-        }
-
-        public static event MessageHandler messageSent;
-        public static void invokeMessageSent(BrodcastRequest request)
-        {
-            messageSent.Invoke(request);
-        }
-    }
-
     //All the connection and packet handeling logic
     public class ClientConnection
     {
         private TcpClient client;
         private NetworkStream stream;
-        public SettingsConfig config = Properties.Settings.Default.Config;
+        public SettingsConfig config;
         
 
         public ClientConnection()
-        {
-            Properties.Settings.Default.SettingsLoaded += (sender, e) => { tryConnectToServer(); }; 
-            Properties.Settings.Default.PropertyChanged += (sender, e) => { tryConnectToServer(); }; 
+        {    
+            ClientEvents.settingsChanged += () => {
+                tryConnectToServer();
+            };
+            tryConnectToServer();  
         }
 
         public bool tryConnectToServer()
@@ -77,22 +36,17 @@ namespace APECA_Client.Scripts
                 disconnect();
             }
 
-            try
-            {
-                connect();
-                return true;
-            }
-            catch(Exception exe)
-            {
-                MessageBox.Show(exe.ToString());
-                return false;
-            }
+            config = Properties.Settings.Default.Config;
+
+            return connect();
         }
-        private void connect()
+        private bool connect()
         {
             if(config == null || config.serverIP == default(string) || config.userName == default(string))
             {
-                throw new Exception("Cannot connect to server without proper configuration");
+                MessageBox.Show("Cannot connect to server without proper configuration");
+
+                return false;
             }
             else
             {
@@ -106,26 +60,51 @@ namespace APECA_Client.Scripts
                     ClientEvents.messageSent += sendMessage;
 
                     Thread connThread = new Thread(Main);
+                    connThread.IsBackground = true;
+
                     connThread.Start();
+
+                    return true;
                 }
                 catch(Exception exe)
                 {
                     MessageBox.Show(exe.ToString());
+
+                    return false;
                 }
             }
         }
-        private void disconnect()
+        public void disconnect()
         {
-            DisconnectionRequest request = new DisconnectionRequest() { userName = config.userName };
-            byte[] packet = SharedEncoding.encodeDisconnectionRequest(request);
+            if(stream != null && client != null)
+            {
+                DisconnectionRequest request = new DisconnectionRequest() { userName = config.userName };
+                byte[] packet = SharedEncoding.encodeDisconnectionRequest(request);
 
-            stream.Write(packet, 0, packet.Length);
+                stream.Write(packet, 0, packet.Length);
+
+                client.Close();
+            }
         }
         public void sendMessage(BrodcastRequest request)
         {
             byte[] packet = SharedEncoding.encryptBrodcastRequest(request, config.key);
 
-            stream.Write(packet, 0, packet.Length);
+            if(stream != null)
+            {
+                try
+                {
+                    stream.Write(packet, 0, packet.Length);
+                }
+                catch(Exception e)
+                {
+                    MessageBox.Show("ERROR: Cannot send message");
+                }
+            }
+            else
+            {
+                MessageBox.Show("ERROR: Cannot send message");
+            }
         }
 
         private void Main()
@@ -143,6 +122,8 @@ namespace APECA_Client.Scripts
                         ClientEvents.invokeMessageRecived(request);
                     }
                 }
+
+                Thread.Sleep(100);
             }
         }
     }

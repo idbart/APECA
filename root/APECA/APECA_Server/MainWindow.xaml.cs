@@ -19,16 +19,15 @@ using APECA_Shared_Library;
 
 namespace APECA_Server
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        MainWindowModel model = new MainWindowModel();
+        MainWindowModel model;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            model = new MainWindowModel();
 
             connectedUsersViewHolder.ItemsSource = model.getClients();
             startButton.IsEnabled = true;
@@ -90,6 +89,11 @@ namespace APECA_Server
             { 
                 Thread.Sleep(1000);
             }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            model.stopServer();
         }
     }
 }

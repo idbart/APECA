@@ -16,7 +16,7 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <ScrollViewer Grid.Row="0">
+        <ScrollViewer Grid.Row="0" x:Name="messageViewHolder">
             <ListView x:Name="messagesView">
                 <ListView.ItemTemplate>
                     <DataTemplate>

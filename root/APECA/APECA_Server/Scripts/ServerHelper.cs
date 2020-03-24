@@ -2,18 +2,21 @@
 using System.Windows;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Net.Sockets;
 using System.Net;
 using APECA_Shared_Library;
+using System.Collections.ObjectModel;
+using System.Windows.Data;
 
 namespace APECA_Server.Scripts
 {
     public class Server
     {
-        public List<Client> clients = new List<Client>();
+        public ObservableCollection<Client> clients;
         public bool isLive { get; private set; }
 
         public IPAddress localAddress;
@@ -23,6 +26,9 @@ namespace APECA_Server.Scripts
 
         public Server()
         {
+            clients = new ObservableCollection<Client>();
+            BindingOperations.EnableCollectionSynchronization(clients, this);
+
             isLive = false;
         }
 
@@ -42,12 +48,19 @@ namespace APECA_Server.Scripts
             isLive = true;
 
             Thread serverThread = new Thread(Main);
+            serverThread.IsBackground = true;
+
             serverThread.Start();
 
             return true;
         }
         public void Stop()
         {
+            foreach(Client client in clients)
+            {
+                client.tcpClient.Close();
+            }
+
             isLive = false;
         }
 
@@ -60,13 +73,19 @@ namespace APECA_Server.Scripts
                     TcpClient client = tcpServer.AcceptTcpClient();
 
                     Thread clientThread = new Thread(() => handleClient(client));
+                    clientThread.IsBackground = true;
+
                     clientThread.Start();
                 }
+
+                Thread.Sleep(100);
             }
             tcpServer.Stop();
         }
         private void handleClient(TcpClient client)
         {
+            Client user = null;
+
             while(client.Connected)
             {
                 NetworkStream stream = client.GetStream();
@@ -77,33 +96,48 @@ namespace APECA_Server.Scripts
 
                     if (SharedPacketTranslation.isConnectionRequest(buffer))
                     {
-                        IPAddress clientIP = IPAddress.Parse(client.Client.RemoteEndPoint.ToString());
+                        IPAddress clientIP = IPAddress.Parse(client.Client.RemoteEndPoint.ToString().Split(':')[0]);
                         string username = SharedEncoding.decodeConnectionRequest(buffer).userName;
 
-                        Client thisClient = (Client)from c in clients where c.userName == username && c.publicIP.ToString() == clientIP.ToString() select c;
+                        Client thisClient = null;
+                        foreach(Client clide in clients)
+                        {
+                            if (clide.userName == username && clide.publicIP.ToString() == clientIP.ToString())
+                            {
+                                thisClient = clide;
+                                break;
+                            }
+                        }
+
                         if (thisClient != null)
                         {
+                            user = thisClient;
+
                             thisClient.tcpClient = client;
                             thisClient.isConnected = true;
                         }
                         else
                         {
-                            clients.Add(new Client() { userName = username, isConnected = true, publicIP = clientIP, tcpClient = client });
+                            Client newClient = new Client() { userName = username, isConnected = true, publicIP = clientIP, tcpClient = client };
+                            user = newClient;
+
+                            clients.Add(newClient);
                         }
                     }
                     else if (SharedPacketTranslation.isDisconnectRequest(buffer))
                     {
-                        Client thisClient = (Client)from c in clients where c.tcpClient == client select c;
-
-                        thisClient.isConnected = false;
-                        thisClient.tcpClient.Close();
+                        user.isConnected = false;
                     }
                     else if (SharedPacketTranslation.isBrodcastRequest(buffer))
                     {
                         sendMessageToAllConnectedClients(buffer);
                     }
                 }
+
+                Thread.Sleep(100);
             }
+
+            user.isConnected = false;
         }
 
         private void sendMessageToAllConnectedClients(byte[] packet)

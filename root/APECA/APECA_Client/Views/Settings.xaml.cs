@@ -16,18 +16,20 @@ using APECA_Client.Models;
 
 namespace APECA_Client.Views
 {
-    /// <summary>
-    /// Interaction logic for Settings.xaml
-    /// </summary>
     public partial class Settings : Page
     {
-        public SettingsModel model = new SettingsModel();
+        public SettingsModel model;
         public Settings()
         {
             InitializeComponent();
+
+            model = new SettingsModel();
             
             saveSettingsButton.IsDefault = true;
-            Properties.Settings.Default.SettingsLoaded += (sender, e) => { populate(); }; 
+
+            //im not really sure whats going on here but it works now
+            Properties.Settings.Default.SettingsLoaded += (sender, e) => { populate(); };
+            populate();
         }
 
         private void saveSettingsButton_Click(object sender, RoutedEventArgs e)
@@ -36,9 +38,12 @@ namespace APECA_Client.Views
         }
         private void populate()
         {
-            userNameInput.Text = Properties.Settings.Default.Config.userName;
-            serverIPInput.Text = Properties.Settings.Default.Config.serverIP;
-            keyInput.Text = Properties.Settings.Default.Config.getKey();
+            if(Properties.Settings.Default != null && Properties.Settings.Default.Config != null)
+            {
+                userNameInput.Text = Properties.Settings.Default.Config.userName;
+                serverIPInput.Text = Properties.Settings.Default.Config.serverIP;
+                keyInput.Text = Properties.Settings.Default.Config.getKeyString();
+            }
         }
     }
 }

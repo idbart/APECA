@@ -45,66 +45,74 @@ namespace APECA_Shared_Library
             byte[] encodedMessage = encodeString(message);
             return Cipher.encrypt(encodedMessage, key);
         }
-
-        public static ConnectionRequest decodeConnectionRequest(byte[] buffer)
+        private static T decodeUnencryptedRequest<T>(byte[] buffer)
         {
             byte[] data = SharedPacketManipulation.trimRequestCode(buffer);
             string jsonString = decodeString(data);
 
-            return JsonSerializer.Deserialize<ConnectionRequest>(jsonString);
+            return JsonSerializer.Deserialize<T>(jsonString);
         }
-        public static byte[] encodeConnectionRequest(ConnectionRequest request)
+        private static byte[] encodeUnencryptedRequest(object request, byte code)
         {
             string jsonString = JsonSerializer.Serialize(request);
             byte[] encodedObject = encodeString(jsonString);
 
             byte[] returnValue = new byte[encodedObject.Length + 1];
-            returnValue[0] = RequestCodes.connect;
+            returnValue[0] = code;
             Array.Copy(encodedObject, 0, returnValue, 1, encodedObject.Length);
 
             return returnValue;
+        }
+
+        public static ConnectionRequest decodeConnectionRequest(byte[] buffer)
+        {
+            return decodeUnencryptedRequest<ConnectionRequest>(buffer);
+        }
+        public static byte[] encodeConnectionRequest(ConnectionRequest request)
+        {
+            return encodeUnencryptedRequest(request, RequestCodes.connect);
         }
 
         public static DisconnectionRequest decodeDisconnectionRequest(byte[] buffer)
         {
-            byte[] data = SharedPacketManipulation.trimRequestCode(buffer);
-            string jsonString = decodeString(data);
-
-            return JsonSerializer.Deserialize<DisconnectionRequest>(jsonString);
+            return decodeUnencryptedRequest<DisconnectionRequest>(buffer);
         }
         public static byte[] encodeDisconnectionRequest(DisconnectionRequest request)
         {
-            string jsonString = JsonSerializer.Serialize(request);
-            byte[] encodedObject = encodeString(jsonString);
-
-            byte[] returnValue = new byte[encodedObject.Length + 1];
-            returnValue[0] = RequestCodes.disconnect;
-            Array.Copy(encodedObject, 0, returnValue, 1, encodedObject.Length);
-
-            return returnValue;
+            return encodeUnencryptedRequest(request, RequestCodes.disconnect);
         }
 
-        public static BrodcastRequest decryptBrodcastRequest(byte[] buffer, byte[] key)
+        public static NotificationRequest decodeNotificationRequest(byte[] buffer)
+        {
+            return decodeUnencryptedRequest<NotificationRequest>(buffer);
+        }
+        public static byte[] encodeNotificationRequest(NotificationRequest request)
+        {
+            return encodeUnencryptedRequest(request, RequestCodes.notification);
+        }
+
+
+        public static BroadcastRequest decryptBroadcastRequest(byte[] buffer, byte[] key)
         {
             byte[] data = SharedPacketManipulation.trimRequestCode(buffer);
             string jsonString = decodeEncryptedString(data, key);
 
             try
             {
-                return JsonSerializer.Deserialize<BrodcastRequest>(jsonString);
+                return JsonSerializer.Deserialize<BroadcastRequest>(jsonString);
             }
             catch(Exception e)
             {
-                return new BrodcastRequest() { userName = "WARNING:", message = jsonString };
+                return new BroadcastRequest() { userName = "WARNING:", message = jsonString };
             }
         }
-        public static byte[] encryptBrodcastRequest(BrodcastRequest request, byte[] key)
+        public static byte[] encryptBroadcastRequest(BroadcastRequest request, byte[] key)
         {
             string jsonString = JsonSerializer.Serialize(request);
             byte[] encryptedObject = encryptString(jsonString, key);
 
             byte[] returnValue = new byte[encryptedObject.Length + 1];
-            returnValue[0] = RequestCodes.brodcastMessage;
+            returnValue[0] = RequestCodes.broadcastMessage;
             Array.Copy(encryptedObject, 0, returnValue, 1, encryptedObject.Length);
 
             return returnValue;

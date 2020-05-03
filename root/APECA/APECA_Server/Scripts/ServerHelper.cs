@@ -17,6 +17,8 @@ namespace APECA_Server.Scripts
     public class Server
     {
         public ObservableCollection<Client> clients;
+        public ObservableCollection<string> log;
+
         public bool isLive { get; private set; }
 
         public IPAddress localAddress;
@@ -27,7 +29,9 @@ namespace APECA_Server.Scripts
         public Server()
         {
             clients = new ObservableCollection<Client>();
+            log = new ObservableCollection<string>();
             BindingOperations.EnableCollectionSynchronization(clients, this);
+            BindingOperations.EnableCollectionSynchronization(log, this);
 
             isLive = false;
         }
@@ -51,6 +55,7 @@ namespace APECA_Server.Scripts
             serverThread.IsBackground = true;
 
             serverThread.Start();
+            log.Add($"server started at: {DateTime.Now.ToString()}");
 
             return true;
         }
@@ -62,6 +67,7 @@ namespace APECA_Server.Scripts
             }
 
             isLive = false;
+            log.Add($"server stopped at: {DateTime.Now.ToString()}");
         }
 
         private void Main()
@@ -115,6 +121,8 @@ namespace APECA_Server.Scripts
 
                             thisClient.tcpClient = client;
                             thisClient.isConnected = true;
+
+                            log.Add($"{user.userName} reconnected at: {DateTime.Now.ToString()}");
                         }
                         else
                         {
@@ -122,11 +130,16 @@ namespace APECA_Server.Scripts
                             user = newClient;
 
                             clients.Add(newClient);
+
+                            log.Add($"{user.userName} connected at: {DateTime.Now.ToString()}");
                         }
+                        sendMessageToAllConnectedClients(SharedEncoding.encodeNotificationRequest(new NotificationRequest() { message = $"{user.userName} has connected" }));
                     }
                     else if (SharedPacketTranslation.isDisconnectRequest(buffer))
                     {
                         user.isConnected = false;
+                        log.Add($"{user.userName} disconnected at: {DateTime.Now.ToString()}");
+                        sendMessageToAllConnectedClients(SharedEncoding.encodeNotificationRequest(new NotificationRequest() { message = $"{user.userName} has disconnected" }));
                     }
                     else if (SharedPacketTranslation.isBrodcastRequest(buffer))
                     {
@@ -136,7 +149,6 @@ namespace APECA_Server.Scripts
 
                 Thread.Sleep(100);
             }
-
             user.isConnected = false;
         }
 

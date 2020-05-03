@@ -12,23 +12,28 @@ namespace APECA_Client.Models
 {
     public class ChatModel
     {
-        public ObservableCollection<BrodcastRequest> messagesToDisplay;
+        public ObservableCollection<BroadcastRequest> messagesToDisplay;
 
         public ChatModel()
         {
-            messagesToDisplay = new ObservableCollection<BrodcastRequest>();
+            messagesToDisplay = new ObservableCollection<BroadcastRequest>();
             BindingOperations.EnableCollectionSynchronization(messagesToDisplay, this);
 
-            ClientEvents.messageRecived += this.receiveMessage;
+            ClientEvents.messageReceived += this.receiveMessage;
+            ClientEvents.notificationReceived += this.receiveNotification;
         }
 
-        public void receiveMessage(BrodcastRequest message)
+        public void receiveMessage(BroadcastRequest message)
         {
             messagesToDisplay.Add(message);
         }
+        public void receiveNotification(NotificationRequest notification)
+        {
+            messagesToDisplay.Add(new BroadcastRequest() { userName = notification.message });
+        }
         public void sendMessage(string message)
         {
-            BrodcastRequest request = new BrodcastRequest() { message = message, userName = Properties.Settings.Default.Config.userName };
+            BroadcastRequest request = new BroadcastRequest() { message = message, userName = Properties.Settings.Default.Config.userName };
             ClientEvents.invokeMessageSent(request);
         }
     }

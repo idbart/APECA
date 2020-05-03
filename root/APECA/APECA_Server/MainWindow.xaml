@@ -24,12 +24,18 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox IsChecked="{Binding isConnected}" IsEnabled="False"/>
-                            <TextBlock Text="{Binding userName}"/>
-                            <TextBlock Text="{Binding publicIP}"/>
+                            <CheckBox IsChecked="{Binding isConnected}" IsEnabled="False" Margin="0,0,5,0"/>
+                            <TextBlock Text="{Binding userName}" Margin="0,0,5,0"/>
+                            <TextBlock Text="{Binding publicIP}" Margin="0,0,5,0"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
+            </ListView>
+        </ScrollViewer>
+
+        <ScrollViewer Grid.Column="1" Grid.Row="0">
+            <ListView x:Name="serverMessagesViewHolder">
+                
             </ListView>
         </ScrollViewer>
         
@@ -40,7 +46,7 @@
             </Grid.ColumnDefinitions>
             
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <TextBox x:Name="setListenIPInput" MinWidth="150" Height="20" Margin="20,0" TextChanged="setListenIPInput_TextChanged"/>
+                <TextBox x:Name="setListenIPInput" MinWidth="150" Height="20" Margin="20,0" TextChanged="setListenIPInput_TextChanged" VerticalContentAlignment="Center"/>
                 <Button x:Name="setListenIPButton" Content="Set IP" Width="93" Height="39" Click="setListenIPButton_Click"/>
             </StackPanel>
 

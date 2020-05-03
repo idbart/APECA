@@ -57,7 +57,7 @@ namespace APECA_Tests
         public void isBrodcastRequest_givenBrodcastRequest_returnsTrue()
         {
             byte[] buffer = new byte[1024];
-            buffer[0] = RequestCodes.brodcastMessage;
+            buffer[0] = RequestCodes.broadcastMessage;
 
             bool result = SharedPacketTranslation.isBrodcastRequest(buffer);
 

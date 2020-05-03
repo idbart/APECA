@@ -51,5 +51,9 @@ namespace APECA_Server.Models
         {
             return serverObj.clients; 
         }
+        public ObservableCollection<string> getMessages()
+        {
+            return serverObj.log;
+        }
     }
 }

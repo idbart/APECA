@@ -30,13 +30,12 @@ namespace APECA_Server
             model = new MainWindowModel();
 
             connectedUsersViewHolder.ItemsSource = model.getClients();
+            serverMessagesViewHolder.ItemsSource = model.getMessages();
+
             startButton.IsEnabled = true;
             stopButton.IsEnabled = false;
             setListenIPButton.IsEnabled = true;
             setListenIPInput.IsEnabled = true;
-
-            Thread visualUpdater = new Thread(updateVisuals);
-            visualUpdater.Start();
         }
 
         private void startButton_Click(object sender, RoutedEventArgs e)
@@ -80,14 +79,6 @@ namespace APECA_Server
             else
             {
                 setListenIPButton.IsEnabled = true;
-            }
-        }
-
-        public void updateVisuals()
-        {   
-            while (true)
-            { 
-                Thread.Sleep(1000);
             }
         }
 

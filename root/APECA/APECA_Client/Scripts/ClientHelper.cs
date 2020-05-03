@@ -54,9 +54,12 @@ namespace APECA_Client.Scripts
                 {
                     client = new TcpClient(config.serverIP, 6955);
                     stream = client.GetStream();
+
                     ConnectionRequest connReq = new ConnectionRequest { userName = config.userName };
                     byte[] connReqPacket = SharedEncoding.encodeConnectionRequest(connReq);
+
                     stream.Write(connReqPacket, 0, connReqPacket.Length);
+
                     ClientEvents.messageSent += sendMessage;
 
                     Thread connThread = new Thread(Main);
@@ -81,20 +84,26 @@ namespace APECA_Client.Scripts
                 DisconnectionRequest request = new DisconnectionRequest() { userName = config.userName };
                 byte[] packet = SharedEncoding.encodeDisconnectionRequest(request);
 
-                stream.Write(packet, 0, packet.Length);
-
-                client.Close();
+                try
+                {
+                    stream.Write(packet, 0, packet.Length);
+                }
+                finally
+                {
+                    ClientEvents.messageSent -= sendMessage;
+                    client.Close();
+                }
             }
         }
-        public void sendMessage(BrodcastRequest request)
+        public void sendMessage(BroadcastRequest request)
         {
-            byte[] packet = SharedEncoding.encryptBrodcastRequest(request, config.key);
+            byte[] packet = SharedEncoding.encryptBroadcastRequest(request, config.key);
 
             if(stream != null)
             {
                 try
                 {
-                    stream.Write(packet, 0, packet.Length);
+                    stream.WriteAsync(packet, 0, packet.Length);
                 }
                 catch(Exception e)
                 {
@@ -118,8 +127,13 @@ namespace APECA_Client.Scripts
 
                     if(SharedPacketTranslation.isBrodcastRequest(buffer))
                     {
-                        BrodcastRequest request = SharedEncoding.decryptBrodcastRequest(buffer, config.key);
+                        BroadcastRequest request = SharedEncoding.decryptBroadcastRequest(buffer, config.key);
                         ClientEvents.invokeMessageRecived(request);
+                    }
+                    else if (SharedPacketTranslation.isNotificationRequest(buffer))
+                    {
+                        NotificationRequest notification = SharedEncoding.decodeNotificationRequest(buffer);
+                        ClientEvents.invokeNotificationReceived(notification);
                     }
                 }
 

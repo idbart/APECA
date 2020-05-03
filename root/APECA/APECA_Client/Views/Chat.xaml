@@ -20,16 +20,19 @@
             <ListView x:Name="messagesView">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding userName}" Margin="0,0,22,0" Foreground="#FF28D637"/>
-                            <TextBlock Text="{Binding message}"/>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,5">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="{Binding userName}" Margin="0,0,25,0" Foreground="#FF28D637" FontFamily="Times New Roman" FontSize="14"/>
+                                <TextBlock Text="{Binding timestamp}" FontSize="10" Foreground="#FF474343" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding message}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
         </ScrollViewer>
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" Margin="0,20">
-            <TextBox x:Name="chatMessageInput" Width="300" Height="20"/>
+            <TextBox x:Name="chatMessageInput" Width="400" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalContentAlignment="Center"/>
             <Button x:Name="sendMessageButton" Click="sendMessageButton_Click" Content="Send" Width="75" Height="30" Margin="20,0,0,0"/>
         </StackPanel>
     </Grid>

@@ -30,7 +30,18 @@ namespace APECA_Shared_Library
         }
         public static bool isBrodcastRequest(byte[] packet)
         {
-            if (packet[0] == RequestCodes.brodcastMessage)
+            if (packet[0] == RequestCodes.broadcastMessage)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public static bool isNotificationRequest(byte[] packet)
+        {
+            if (packet[0] == RequestCodes.notification)
             {
                 return true;
             }

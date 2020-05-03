@@ -8,6 +8,7 @@ namespace APECA_Shared_Library
     {
         public static readonly byte connect = 1;
         public static readonly byte disconnect = 2;
-        public static readonly byte brodcastMessage = 3;
+        public static readonly byte broadcastMessage = 3;
+        public static readonly byte notification = 4;
     }
 }

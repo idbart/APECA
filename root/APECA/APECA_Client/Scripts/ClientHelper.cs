@@ -52,7 +52,7 @@ namespace APECA_Client.Scripts
             {
                 try
                 {
-                    client = new TcpClient(config.serverIP, 6955);
+                    client = new TcpClient(config.serverIP, 2056);
                     stream = client.GetStream();
 
                     ConnectionRequest connReq = new ConnectionRequest { userName = config.userName };

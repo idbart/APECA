@@ -22,7 +22,7 @@ namespace APECA_Server.Scripts
         public bool isLive { get; private set; }
 
         public IPAddress localAddress;
-        private readonly int listenPort = 6955;
+        private readonly int listenPort = 2056;
 
         private TcpListener tcpServer; 
 
